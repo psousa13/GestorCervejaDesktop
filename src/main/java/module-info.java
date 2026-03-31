@@ -1,9 +1,12 @@
 module com.gestorcerveja.gestorcervejadesktop {
+
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
-    requires org.postgresql.jdbc;
 
-    opens com.gestorcerveja.ui to javafx.fxml;
+    // IMPORTANT: allow JavaFX to access controller
+    opens com.gestorcerveja.ui.controller to javafx.fxml;
+
+    // Optional (but good practice)
     exports com.gestorcerveja.ui;
 }
