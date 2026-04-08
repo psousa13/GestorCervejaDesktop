@@ -1,7 +1,7 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Usuario;
-import service.UsuarioService;
+import com.gestorcerveja.model.Usuario;
+import com.gestorcerveja.service.UsuarioService;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,7 +1,7 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Receita;
-import service.ReceitaService;
+import com.gestorcerveja.model.Receita;
+import com.gestorcerveja.service.ReceitaService;
 
 import java.sql.SQLException;
 import java.util.List;

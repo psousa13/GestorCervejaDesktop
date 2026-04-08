@@ -1,8 +1,8 @@
-package service;
+package com.gestorcerveja.service;
 
-import model.Pedido;
-import model.PedidoItem;
-import repository.PedidoRepository;
+import com.gestorcerveja.model.Pedido;
+import com.gestorcerveja.model.PedidoItem;
+import com.gestorcerveja.repository.PedidoRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

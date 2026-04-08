@@ -1,7 +1,7 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Lote;
-import service.LoteService;
+import com.gestorcerveja.model.Lote;
+import com.gestorcerveja.service.LoteService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

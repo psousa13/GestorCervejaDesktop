@@ -1,7 +1,7 @@
-package service;
+package com.gestorcerveja.service;
 
-import model.RequestProducao;
-import repository.RequestProducaoRepository;
+import com.gestorcerveja.model.RequestProducao;
+import com.gestorcerveja.repository.RequestProducaoRepository;
 
 import java.sql.SQLException;
 import java.util.List;

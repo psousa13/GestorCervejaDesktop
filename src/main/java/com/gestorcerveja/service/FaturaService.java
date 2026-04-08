@@ -1,10 +1,10 @@
-package service;
+package com.gestorcerveja.service;
 
-import model.Fatura;
-import model.FaturaItem;
-import model.PedidoItem;
-import repository.FaturaRepository;
-import repository.PedidoRepository;
+import com.gestorcerveja.model.Fatura;
+import com.gestorcerveja.model.FaturaItem;
+import com.gestorcerveja.model.PedidoItem;
+import com.gestorcerveja.repository.FaturaRepository;
+import com.gestorcerveja.repository.PedidoRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

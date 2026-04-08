@@ -1,4 +1,4 @@
-package model;
+package com.gestorcerveja.model;
 
 public class PedidoItem {
     private int iditem;

@@ -1,8 +1,8 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Fatura;
-import model.FaturaItem;
-import service.FaturaService;
+import com.gestorcerveja.model.Fatura;
+import com.gestorcerveja.model.FaturaItem;
+import com.gestorcerveja.service.FaturaService;
 
 import java.sql.SQLException;
 import java.util.List;

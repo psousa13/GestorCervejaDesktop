@@ -1,9 +1,9 @@
-package service;
+package com.gestorcerveja.service;
 
-import model.Receita;
-import model.ReceitaPreco;
-import repository.ReceitaPrecoRepository;
-import repository.ReceitaRepository;
+import com.gestorcerveja.model.Receita;
+import com.gestorcerveja.model.ReceitaPreco;
+import com.gestorcerveja.repository.ReceitaPrecoRepository;
+import com.gestorcerveja.repository.ReceitaRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

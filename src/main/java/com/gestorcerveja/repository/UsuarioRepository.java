@@ -1,7 +1,7 @@
-package repository;
+package com.gestorcerveja.repository;
 
-import db.DBConnection;
-import model.Usuario;
+import com.gestorcerveja.db.DBConnection;
+import com.gestorcerveja.model.Usuario;
 
 import java.sql.*;
 import java.util.ArrayList;

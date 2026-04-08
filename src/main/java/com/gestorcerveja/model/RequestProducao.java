@@ -1,4 +1,4 @@
-package model;
+package com.gestorcerveja.model;
 
 import java.time.LocalDateTime;
 

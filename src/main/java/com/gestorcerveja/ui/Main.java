@@ -1,7 +1,8 @@
 package com.gestorcerveja.ui;
 
+import com.gestorcerveja.ui.screens.LoginScreen;
+import com.gestorcerveja.ui.screens.MainScreen;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -11,22 +12,24 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        try {
-            primaryStage = stage;
+        primaryStage = stage;
+        stage.setTitle("Gestor Cerveja");
+        stage.setMinWidth(1100);
+        stage.setMinHeight(680);
+        stage.setWidth(1280);
+        stage.setHeight(760);
+        showLogin();
+        stage.show();
+    }
 
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/gestorcerveja/gestorcervejadesktop/login.fxml")
-            );
+    public static void showLogin() {
+        Scene scene = new Scene(LoginScreen.build());
+        primaryStage.setScene(scene);
+    }
 
-            Scene scene = new Scene(loader.load(), 400, 300);
-
-            stage.setTitle("Gestor Cerveja");
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void showMain() {
+        Scene scene = new Scene(MainScreen.build());
+        primaryStage.setScene(scene);
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,7 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Role;
-import service.RoleService;
+import com.gestorcerveja.model.Role;
+import com.gestorcerveja.service.RoleService;
 
 import java.sql.SQLException;
 import java.util.List;

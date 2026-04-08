@@ -1,8 +1,8 @@
-package repository;
+package com.gestorcerveja.repository;
 
-import db.DBConnection;
-import model.Fatura;
-import model.FaturaItem;
+import com.gestorcerveja.db.DBConnection;
+import com.gestorcerveja.model.Fatura;
+import com.gestorcerveja.model.FaturaItem;
 
 import java.sql.*;
 import java.util.ArrayList;

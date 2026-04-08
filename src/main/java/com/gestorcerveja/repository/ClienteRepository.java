@@ -1,9 +1,9 @@
-package repository;
+package com.gestorcerveja.repository;
 
-import db.DBConnection;
-import model.Cliente;
-import model.ClienteParticular;
-import model.ClienteRevendedor;
+import com.gestorcerveja.db.DBConnection;
+import com.gestorcerveja.model.Cliente;
+import com.gestorcerveja.model.ClienteParticular;
+import com.gestorcerveja.model.ClienteRevendedor;
 
 import java.sql.*;
 import java.util.ArrayList;

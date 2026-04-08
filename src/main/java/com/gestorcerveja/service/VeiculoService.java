@@ -1,7 +1,7 @@
-package service;
+package com.gestorcerveja.service;
 
-import model.Veiculo;
-import repository.VeiculoRepository;
+import com.gestorcerveja.model.Veiculo;
+import com.gestorcerveja.repository.VeiculoRepository;
 
 import java.sql.SQLException;
 import java.util.List;

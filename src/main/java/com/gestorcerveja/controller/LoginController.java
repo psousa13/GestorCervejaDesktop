@@ -1,11 +1,11 @@
-package com.gestorcerveja.ui.controller;
+package com.gestorcerveja.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import model.Usuario;
-import service.UsuarioService;
+import com.gestorcerveja.model.Usuario;
+import com.gestorcerveja.service.UsuarioService;
 
 public class LoginController {
 

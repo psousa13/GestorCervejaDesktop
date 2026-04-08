@@ -1,8 +1,8 @@
-package controller;
+package com.gestorcerveja.controller;
 
-import model.Pedido;
-import model.PedidoItem;
-import service.PedidoService;
+import com.gestorcerveja.model.Pedido;
+import com.gestorcerveja.model.PedidoItem;
+import com.gestorcerveja.service.PedidoService;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
