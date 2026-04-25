@@ -11,10 +11,10 @@ import javafx.scene.layout.*;
 public class MainScreen {
 
     public  static TopBar    topBar;
-    /** StackPane exposto para que os modais possam fazer overlay. */
+    /** StackPane exposto para que os modais e a PerfilScreen possam fazer overlay. */
     public  static StackPane contentArea;
 
-    // Controllers — ponto unico de acesso para toda a UI
+    // Controllers — ponto único de acesso para toda a UI
     public static final IngredienteController     ingredienteController  = new IngredienteController();
     public static final ReceitaController         receitaController      = new ReceitaController();
     public static final ClienteController         clienteController      = new ClienteController();
@@ -67,8 +67,10 @@ public class MainScreen {
             case "utilizadores" -> "Utilizadores";
             case "qualidade"    -> "Testes de Qualidade";
             case "stock"        -> "Movimentações de Stock";
+            case "perfil"       -> "O Meu Perfil";
             default             -> id;
         };
+
         if (topBar != null) topBar.setTitle(title);
 
         ScreenBundle bundle = switch (id) {
@@ -84,21 +86,32 @@ public class MainScreen {
             case "utilizadores" -> UtilizadoresScreen.build();
             case "qualidade"    -> ScreenBundle.viewOnly(QualidadeScreen.build());
             case "stock"        -> ScreenBundle.viewOnly(StockScreen.build());
-            default             -> ScreenBundle.viewOnly(new javafx.scene.layout.VBox());
+            case "perfil"       -> ScreenBundle.viewOnly(PerfilScreen.build());
+            default             -> ScreenBundle.viewOnly(new VBox());
         };
 
         if (contentArea != null) contentArea.getChildren().setAll(bundle.view());
 
-        // wira botoes da topbar
+        // Botões da TopBar
         if (topBar != null) {
+            // Perfil: sem botões de ação na topbar
+            if ("perfil".equals(id)) {
+                topBar.setOnNew(null);
+                topBar.setOnExport(null);
+                return;
+            }
+
             topBar.setOnNew(bundle.onNew());
 
             if (bundle.table() != null) {
                 final String exportTitle = title;
                 topBar.setOnExport(() ->
-                    ExportUtils.export(bundle.table(),
-                                       contentArea.getScene().getWindow(),
-                                       exportTitle));
+                    ExportUtils.export(
+                        bundle.table(),
+                        contentArea.getScene().getWindow(),
+                        exportTitle
+                    )
+                );
             } else {
                 topBar.setOnExport(null);
             }

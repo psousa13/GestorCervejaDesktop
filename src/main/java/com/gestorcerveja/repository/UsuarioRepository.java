@@ -53,6 +53,31 @@ public class UsuarioRepository {
         }
     }
 
+    /**
+     * Atualiza nome e/ou senha de um utilizador.
+     * Se {@code novaSenha} for null ou vazia, a senha não é alterada.
+     */
+    public void update(int id, String novoNome, String novaSenha) throws SQLException {
+        if (novaSenha == null || novaSenha.isBlank()) {
+            String sql = "UPDATE Usuario SET nome = ? WHERE idusuario = ?";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, novoNome);
+                ps.setInt(2, id);
+                ps.executeUpdate();
+            }
+        } else {
+            String sql = "UPDATE Usuario SET nome = ?, senha = ? WHERE idusuario = ?";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, novoNome);
+                ps.setString(2, novaSenha);
+                ps.setInt(3, id);
+                ps.executeUpdate();
+            }
+        }
+    }
+
     public void delete(int id) throws SQLException {
         String sql = "DELETE FROM Usuario WHERE idusuario = ?";
         try (Connection conn = DBConnection.getConnection();
