@@ -2,6 +2,17 @@ package com.gestorcerveja.ui;
 
 public class StyleConstants {
 
+    // ── Modal / ModalOverlay tokens ───────────────────────────────────────────
+    /** Cor de destaque principal (vinho). */
+    public static final String ACCENT       = "#7B2D3E";
+    /** Fundo do card do modal (branco puro). */
+    public static final String BG_DARK      = "white";
+    /** Fundo dos inputs no modal (cinzento-quente claro). */
+    public static final String BG_MID       = "#F0EBE8";
+    /** Cor de texto principal. */
+    public static final String TEXT_PRIMARY = "#1A1614";
+
+    // ── Botões ────────────────────────────────────────────────────────────────
     public static final String BTN_PRIMARY =
             "-fx-background-color: #7B2D3E; -fx-text-fill: white; -fx-font-size: 12px; " +
                     "-fx-font-weight: bold; -fx-background-radius: 7px; -fx-padding: 6px 13px; " +
@@ -12,6 +23,7 @@ public class StyleConstants {
                     "-fx-border-color: #E8E2DF; -fx-border-width: 1px; -fx-border-radius: 7px; " +
                     "-fx-background-radius: 7px; -fx-padding: 6px 13px; -fx-cursor: hand;";
 
+    // ── Cards ─────────────────────────────────────────────────────────────────
     public static final String CARD_NORMAL =
             "-fx-background-color: white; -fx-border-color: #E8E2DF; -fx-border-width: 1px; " +
                     "-fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 13px 15px; " +
@@ -22,6 +34,7 @@ public class StyleConstants {
                     "-fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 13px 15px; " +
                     "-fx-cursor: hand;";
 
+    // ── Navegação ─────────────────────────────────────────────────────────────
     public static final String NAV_NORMAL =
             "-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.5); " +
                     "-fx-font-size: 12.5px; -fx-padding: 8px 10px; -fx-cursor: hand; " +
@@ -32,6 +45,7 @@ public class StyleConstants {
                     "-fx-font-size: 12.5px; -fx-padding: 8px 10px; -fx-cursor: hand; " +
                     "-fx-background-radius: 6px; -fx-alignment: center-left; -fx-border-width: 0;";
 
+    // ── Layout ────────────────────────────────────────────────────────────────
     public static final String SIDEBAR_BG =
             "-fx-background-color: #3E1520; -fx-min-width: 210px; -fx-max-width: 210px; -fx-pref-width: 210px;";
 
@@ -42,6 +56,7 @@ public class StyleConstants {
             "-fx-background-color: white; -fx-border-color: #E8E2DF; " +
                     "-fx-border-width: 0 0 1px 0; -fx-padding: 11px 22px;";
 
+    // ── Tabela ────────────────────────────────────────────────────────────────
     public static final String STAT_CARD =
             "-fx-background-color: white; -fx-border-color: #E8E2DF; -fx-border-width: 1px; " +
                     "-fx-border-radius: 9px; -fx-background-radius: 9px; -fx-padding: 14px;";
@@ -54,6 +69,7 @@ public class StyleConstants {
             "-fx-background-color: white; -fx-border-color: #E8E2DF; -fx-border-width: 1px; " +
                     "-fx-border-radius: 9px; -fx-background-radius: 9px;";
 
+    // ── Outros ────────────────────────────────────────────────────────────────
     public static final String BANNER =
             "-fx-background-color: #3E1520; -fx-background-radius: 11px; -fx-padding: 18px 22px;";
 

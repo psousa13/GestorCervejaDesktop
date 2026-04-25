@@ -9,26 +9,16 @@ import java.util.List;
 public class RequestProducaoController {
     private final RequestProducaoService service = new RequestProducaoService();
 
-    public void listAll() {
-        try {
-            List<RequestProducao> list = service.getAll();
-            if (list.isEmpty()) { System.out.println("No requests found."); return; }
-            list.forEach(System.out::println);
-        } catch (SQLException e) { System.out.println("DB error: " + e.getMessage()); }
+    public List<RequestProducao> listAll() throws SQLException {
+        return service.getAll();
     }
 
-    public void create(int idusuario) {
-        try {
-            int id = service.create(idusuario);
-            System.out.println("RequestProducao created with id: " + id);
-        } catch (SQLException e) { System.out.println("DB error: " + e.getMessage()); }
+    /** Cria um request de produção e devolve o id gerado. */
+    public int create(int idusuario) throws SQLException {
+        return service.create(idusuario);
     }
 
-    public void concluir(int id) {
-        try {
-            service.concluir(id);
-            System.out.println("RequestProducao " + id + " concluido.");
-        } catch (IllegalArgumentException e) { System.out.println("Error: " + e.getMessage()); }
-        catch (SQLException e) { System.out.println("DB error: " + e.getMessage()); }
+    public void concluir(int id) throws SQLException {
+        service.concluir(id);
     }
 }

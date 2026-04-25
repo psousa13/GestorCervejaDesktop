@@ -1,26 +1,30 @@
 package com.gestorcerveja.ui.screens;
 
-import com.gestorcerveja.service.*;
+import com.gestorcerveja.controller.*;
+import com.gestorcerveja.ui.components.ScreenBundle;
 import com.gestorcerveja.ui.components.Sidebar;
 import com.gestorcerveja.ui.components.TopBar;
+import com.gestorcerveja.ui.util.ExportUtils;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 
 public class MainScreen {
 
-    private static TopBar topBar;
-    private static StackPane contentArea;
+    public  static TopBar    topBar;
+    /** StackPane exposto para que os modais possam fazer overlay. */
+    public  static StackPane contentArea;
 
-    // Services — shared across all screens
-    public static final IngredienteService ingredienteService = new IngredienteService();
-    public static final ReceitaService receitaService         = new ReceitaService();
-    public static final ClienteService clienteService         = new ClienteService();
-    public static final PedidoService pedidoService           = new PedidoService();
-    public static final VeiculoService veiculoService         = new VeiculoService();
-    public static final LoteService loteService               = new LoteService();
-    public static final FaturaService faturaService           = new FaturaService();
-    public static final RequestProducaoService requestService = new RequestProducaoService();
-    public static final UsuarioService usuarioService         = new UsuarioService();
+    // Controllers — ponto unico de acesso para toda a UI
+    public static final IngredienteController     ingredienteController  = new IngredienteController();
+    public static final ReceitaController         receitaController      = new ReceitaController();
+    public static final ClienteController         clienteController      = new ClienteController();
+    public static final PedidoController          pedidoController       = new PedidoController();
+    public static final VeiculoController         veiculoController      = new VeiculoController();
+    public static final LoteController            loteController         = new LoteController();
+    public static final FaturaController          faturaController       = new FaturaController();
+    public static final RequestProducaoController requestController      = new RequestProducaoController();
+    public static final UsuarioController         usuarioController      = new UsuarioController();
+    public static final RoleController            roleController         = new RoleController();
 
     public static HBox build() {
         HBox root = new HBox();
@@ -33,10 +37,12 @@ public class MainScreen {
 
         ScrollPane scroll = new ScrollPane(contentArea);
         scroll.setFitToWidth(true);
+        scroll.setFitToHeight(true);
         scroll.setStyle("-fx-background-color: #FAF8F6; -fx-background: #FAF8F6;");
         HBox.setHgrow(scroll, Priority.ALWAYS);
 
         VBox rightSide = new VBox(topBar, scroll);
+        VBox.setVgrow(scroll, Priority.ALWAYS);
         rightSide.setStyle("-fx-background-color: #FAF8F6;");
         HBox.setHgrow(rightSide, Priority.ALWAYS);
 
@@ -65,8 +71,8 @@ public class MainScreen {
         };
         if (topBar != null) topBar.setTitle(title);
 
-        Region content = switch (id) {
-            case "dashboard"    -> DashboardScreen.build();
+        ScreenBundle bundle = switch (id) {
+            case "dashboard"    -> ScreenBundle.viewOnly(DashboardScreen.build());
             case "pedidos"      -> PedidosScreen.build();
             case "clientes"     -> ClientesScreen.build();
             case "faturas"      -> FaturasScreen.build();
@@ -76,11 +82,26 @@ public class MainScreen {
             case "ingredientes" -> IngredientesScreen.build();
             case "veiculos"     -> VeiculosScreen.build();
             case "utilizadores" -> UtilizadoresScreen.build();
-            case "qualidade"    -> QualidadeScreen.build();
-            case "stock"        -> StockScreen.build();
-            default             -> new VBox();
+            case "qualidade"    -> ScreenBundle.viewOnly(QualidadeScreen.build());
+            case "stock"        -> ScreenBundle.viewOnly(StockScreen.build());
+            default             -> ScreenBundle.viewOnly(new javafx.scene.layout.VBox());
         };
 
-        if (contentArea != null) contentArea.getChildren().setAll(content);
+        if (contentArea != null) contentArea.getChildren().setAll(bundle.view());
+
+        // wira botoes da topbar
+        if (topBar != null) {
+            topBar.setOnNew(bundle.onNew());
+
+            if (bundle.table() != null) {
+                final String exportTitle = title;
+                topBar.setOnExport(() ->
+                    ExportUtils.export(bundle.table(),
+                                       contentArea.getScene().getWindow(),
+                                       exportTitle));
+            } else {
+                topBar.setOnExport(null);
+            }
+        }
     }
 }

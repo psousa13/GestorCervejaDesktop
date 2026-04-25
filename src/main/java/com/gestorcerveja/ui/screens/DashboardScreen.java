@@ -33,13 +33,15 @@ public class DashboardScreen {
         return root;
     }
 
+    // ── Banner ────────────────────────────────────────────────────────────────
+
     private static HBox buildBanner() {
         HBox banner = new HBox();
         banner.setStyle(StyleConstants.BANNER);
         banner.setAlignment(Pos.CENTER_LEFT);
 
         VBox left = new VBox(4);
-        Label greeting = new Label("Bom dia, " + SessionManager.getRoleLabel());
+        Label greeting = new Label("Bom dia, " + SessionManager.getUserNome());
         greeting.setStyle("-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: white;");
         Label sub = new Label(getBannerSub());
         sub.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255,255,255,0.4);");
@@ -60,6 +62,8 @@ public class DashboardScreen {
         return banner;
     }
 
+    // ── Stat cards ────────────────────────────────────────────────────────────
+
     private static HBox buildStats() {
         HBox stats = new HBox(11);
         try {
@@ -78,6 +82,8 @@ public class DashboardScreen {
         }
         return stats;
     }
+
+    // ── List cards ────────────────────────────────────────────────────────────
 
     private static HBox buildCards() {
         HBox cards = new HBox(15);
@@ -128,7 +134,7 @@ public class DashboardScreen {
         return card;
     }
 
-    // ── Role data ──
+    // ── Role data ─────────────────────────────────────────────────────────────
 
     private static String getBannerSub() {
         return switch (SessionManager.getRole()) {
@@ -157,24 +163,24 @@ public class DashboardScreen {
     private static String[][] getStatsData() throws SQLException {
         return switch (SessionManager.getRole()) {
             case "admin" -> new String[][]{
-                    {"Pedidos",       String.valueOf(MainScreen.pedidoService.getAll().size()),       "total",        "blue"},
-                    {"Lotes",         String.valueOf(MainScreen.loteService.getAll().size()),         "em sistema",   "green"},
-                    {"Stock crítico", String.valueOf(MainScreen.ingredienteService.getLowStock().size()), "ingredientes","wine"},
-                    {"Clientes",      String.valueOf(MainScreen.clienteService.getAll().size()),      "registados",   "amber"},
+                    {"Pedidos",       String.valueOf(MainScreen.pedidoController.listAll().size()),            "total",         "blue"},
+                    {"Lotes",         String.valueOf(MainScreen.loteController.listAll().size()),              "em sistema",    "green"},
+                    {"Stock crítico", String.valueOf(MainScreen.ingredienteController.listLowStock().size()),  "ingredientes",  "wine"},
+                    {"Clientes",      String.valueOf(MainScreen.clienteController.listAll().size()),           "registados",    "amber"},
             };
             case "producao" -> new String[][]{
-                    {"Lotes",         String.valueOf(MainScreen.loteService.getAll().size()),         "em sistema",   "green"},
-                    {"Pedidos",       String.valueOf(MainScreen.pedidoService.getAll().size()),       "total",        "blue"},
-                    {"Stock crítico", String.valueOf(MainScreen.ingredienteService.getLowStock().size()), "ingredientes","wine"},
-                    {"Receitas",      String.valueOf(MainScreen.receitaService.getAll().size()),      "disponíveis",  "amber"},
+                    {"Lotes",         String.valueOf(MainScreen.loteController.listAll().size()),              "em sistema",    "green"},
+                    {"Pedidos",       String.valueOf(MainScreen.pedidoController.listAll().size()),            "total",         "blue"},
+                    {"Stock crítico", String.valueOf(MainScreen.ingredienteController.listLowStock().size()),  "ingredientes",  "wine"},
+                    {"Receitas",      String.valueOf(MainScreen.receitaController.listAll().size()),           "disponíveis",   "amber"},
             };
             case "armazem" -> new String[][]{
-                    {"Ingredientes",  String.valueOf(MainScreen.ingredienteService.getAll().size()),  "total",        "blue"},
-                    {"Stock crítico", String.valueOf(MainScreen.ingredienteService.getLowStock().size()), "urgente",  "red"},
+                    {"Ingredientes",  String.valueOf(MainScreen.ingredienteController.listAll().size()),       "total",         "blue"},
+                    {"Stock crítico", String.valueOf(MainScreen.ingredienteController.listLowStock().size()),  "urgente",       "red"},
             };
             case "comercial" -> new String[][]{
-                    {"Pedidos",       String.valueOf(MainScreen.pedidoService.getAll().size()),       "total",        "blue"},
-                    {"Clientes",      String.valueOf(MainScreen.clienteService.getAll().size()),      "registados",   "green"},
+                    {"Pedidos",       String.valueOf(MainScreen.pedidoController.listAll().size()),            "total",         "blue"},
+                    {"Clientes",      String.valueOf(MainScreen.clienteController.listAll().size()),           "registados",    "green"},
             };
             default -> new String[][]{};
         };
@@ -182,10 +188,10 @@ public class DashboardScreen {
 
     private static String getCard1Title() {
         return switch (SessionManager.getRole()) {
-            case "admin","comercial"   -> "Pedidos recentes";
-            case "producao","operador" -> "Lotes recentes";
-            case "qualidade"           -> "Aguardam teste";
-            case "armazem"             -> "Ingredientes críticos";
+            case "admin", "comercial"   -> "Pedidos recentes";
+            case "producao", "operador" -> "Lotes recentes";
+            case "qualidade"            -> "Aguardam teste";
+            case "armazem"              -> "Ingredientes críticos";
             default -> "Resumo";
         };
     }
@@ -193,19 +199,19 @@ public class DashboardScreen {
     private static String[][] getCard1Items() {
         try {
             return switch (SessionManager.getRole()) {
-                case "admin","comercial" -> MainScreen.pedidoService.getAll().stream()
+                case "admin", "comercial" -> MainScreen.pedidoController.listAll().stream()
                         .limit(3).map(p -> new String[]{
                                 "#PED-" + String.format("%03d", p.getId()),
                                 "Cliente " + p.getIdcliente() + " · " + p.getDataPedido(),
                                 p.getEstado(), "amber"
                         }).toArray(String[][]::new);
-                case "producao","operador" -> MainScreen.loteService.getAll().stream()
+                case "producao", "operador" -> MainScreen.loteController.listAll().stream()
                         .limit(3).map(l -> new String[]{
                                 "Lote #" + l.getId(),
                                 l.getLitros() + "L · Receita " + l.getIdreceita(),
                                 "Em produção", "green"
                         }).toArray(String[][]::new);
-                case "armazem" -> MainScreen.ingredienteService.getLowStock().stream()
+                case "armazem" -> MainScreen.ingredienteController.listLowStock().stream()
                         .map(i -> new String[]{
                                 i.getNome(),
                                 "Stock: " + i.getStockAtual() + " · Mín: " + i.getStockMinimo(),
@@ -230,19 +236,19 @@ public class DashboardScreen {
     private static String[][] getCard2Items() {
         try {
             return switch (SessionManager.getRole()) {
-                case "admin" -> MainScreen.loteService.getAll().stream()
+                case "admin" -> MainScreen.loteController.listAll().stream()
                         .limit(3).map(l -> new String[]{
                                 "Lote #" + l.getId(),
                                 l.getLitros() + "L · Receita " + l.getIdreceita(),
                                 "Ativo", "green"
                         }).toArray(String[][]::new);
-                case "producao" -> MainScreen.receitaService.getAll().stream()
+                case "producao" -> MainScreen.receitaController.listAll().stream()
                         .limit(3).map(r -> new String[]{
                                 r.getNome(),
                                 r.getDescricao() != null ? r.getDescricao() : "—",
                                 "Disponível", "blue"
                         }).toArray(String[][]::new);
-                case "comercial" -> MainScreen.clienteService.getAll().stream()
+                case "comercial" -> MainScreen.clienteController.listAll().stream()
                         .limit(3).map(c -> new String[]{
                                 c.getEmail() != null ? c.getEmail() : "—",
                                 c.getTipoCliente(),

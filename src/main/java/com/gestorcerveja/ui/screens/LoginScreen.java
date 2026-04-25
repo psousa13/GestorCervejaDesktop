@@ -1,7 +1,7 @@
 package com.gestorcerveja.ui.screens;
 
+import com.gestorcerveja.controller.LoginController;
 import com.gestorcerveja.ui.Main;
-import com.gestorcerveja.ui.SessionManager;
 import com.gestorcerveja.ui.StyleConstants;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,9 +13,7 @@ import javafx.scene.text.TextAlignment;
 
 public class LoginScreen {
 
-    private static String selectedRole = "admin";
-    private static VBox selectedCard   = null;
-    private static Label selectedName  = null;
+    private static final LoginController loginController = new LoginController();
 
     public static HBox build() {
         HBox root = new HBox();
@@ -24,6 +22,8 @@ public class LoginScreen {
         root.getChildren().addAll(buildLeft(), buildRight());
         return root;
     }
+
+    // ── Painel esquerdo (branding) ────────────────────────────────────────────
 
     private static VBox buildLeft() {
         VBox left = new VBox(12);
@@ -49,6 +49,8 @@ public class LoginScreen {
         return left;
     }
 
+    // ── Painel direito (formulário de login) ──────────────────────────────────
+
     private static VBox buildRight() {
         VBox right = new VBox(0);
         right.setStyle("-fx-background-color: #FAF8F6; -fx-padding: 48px 64px;");
@@ -58,78 +60,95 @@ public class LoginScreen {
         Label title = new Label("Bem-vindo de volta");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1A1614;");
 
-        Label sub = new Label("Selecione o seu perfil para aceder ao sistema");
+        Label sub = new Label("Inicie sessão para aceder ao sistema");
         sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #8C8480;");
-        VBox.setMargin(sub, new Insets(5, 0, 28, 0));
+        VBox.setMargin(sub, new Insets(5, 0, 36, 0));
 
-        Label fieldLabel = new Label("PERFIL DE ACESSO");
-        fieldLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #8C8480;");
-        VBox.setMargin(fieldLabel, new Insets(0, 0, 10, 0));
+        // Campo: Utilizador
+        Label userLabel = new Label("UTILIZADOR");
+        userLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #8C8480;");
+        VBox.setMargin(userLabel, new Insets(0, 0, 6, 0));
 
-        GridPane grid = buildRoleGrid();
-        VBox.setMargin(grid, new Insets(0, 0, 24, 0));
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Nome de utilizador");
+        usernameField.setMaxWidth(400);
+        usernameField.setStyle(fieldStyle(false));
+        VBox.setMargin(usernameField, new Insets(0, 0, 22, 0));
+        usernameField.focusedProperty().addListener((obs, was, is) ->
+                usernameField.setStyle(fieldStyle(is)));
 
+        // Campo: Senha
+        Label passLabel = new Label("SENHA");
+        passLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #8C8480;");
+        VBox.setMargin(passLabel, new Insets(0, 0, 6, 0));
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Senha");
+        passwordField.setMaxWidth(400);
+        passwordField.setStyle(fieldStyle(false));
+        VBox.setMargin(passwordField, new Insets(0, 0, 10, 0));
+        passwordField.focusedProperty().addListener((obs, was, is) ->
+                passwordField.setStyle(fieldStyle(is)));
+
+        // Mensagem de erro
+        Label errorLabel = new Label("");
+        errorLabel.setStyle("-fx-text-fill: #A32D2D; -fx-font-size: 12px;");
+        VBox.setMargin(errorLabel, new Insets(0, 0, 20, 0));
+
+        // Botão
         Button loginBtn = new Button("Entrar no Sistema");
         loginBtn.setStyle(StyleConstants.BTN_PRIMARY + " -fx-font-size: 14px; -fx-padding: 13px 0;");
-        loginBtn.setMaxWidth(Double.MAX_VALUE);
-        loginBtn.setOnAction(e -> {
-            SessionManager.setRole(selectedRole);
-            Main.showMain();
-        });
+        loginBtn.setMaxWidth(400);
 
-        right.getChildren().addAll(title, sub, fieldLabel, grid, loginBtn);
+        // Lógica de autenticação delegada ao LoginController
+        Runnable doLogin = () -> {
+            String username = usernameField.getText().trim();
+            String password = passwordField.getText();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                errorLabel.setText("⚠  Por favor preencha todos os campos.");
+                return;
+            }
+
+            errorLabel.setText("");
+            loginBtn.setDisable(true);
+            loginBtn.setText("A verificar...");
+
+            try {
+                loginController.login(username, password);
+                Main.showMain();
+            } catch (IllegalArgumentException e) {
+                errorLabel.setText("⚠  Credenciais inválidas. Tente novamente.");
+                passwordField.clear();
+                passwordField.requestFocus();
+            } catch (Exception e) {
+                errorLabel.setText("⚠  Erro de ligação à base de dados.");
+            } finally {
+                loginBtn.setDisable(false);
+                loginBtn.setText("Entrar no Sistema");
+            }
+        };
+
+        loginBtn.setOnAction(e -> doLogin.run());
+        passwordField.setOnAction(e -> doLogin.run());
+        usernameField.setOnAction(e -> passwordField.requestFocus());
+
+        right.getChildren().addAll(
+                title, sub,
+                userLabel, usernameField,
+                passLabel, passwordField,
+                errorLabel,
+                loginBtn
+        );
         return right;
     }
 
-    private static GridPane buildRoleGrid() {
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setMaxWidth(480);
-
-        String[][] roles = {
-                {"admin",     "Administrador",        "Acesso total ao sistema"},
-                {"producao",  "Gestor de Produção",   "Lotes, receitas e planeamento"},
-                {"operador",  "Operador de Produção", "Registo de etapas do processo"},
-                {"qualidade", "Gestor de Qualidade",  "Testes e aprovação de lotes"},
-                {"armazem",   "Resp. de Armazém",     "Stock e ingredientes"},
-                {"comercial", "Comercial",             "Pedidos, clientes e faturas"},
-        };
-
-        for (int i = 0; i < roles.length; i++) {
-            String roleId   = roles[i][0];
-            String roleName = roles[i][1];
-            String roleDesc = roles[i][2];
-
-            Label nameLabel = new Label(roleName);
-            nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1A1614;");
-
-            Label descLabel = new Label(roleDesc);
-            descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #8C8480;");
-
-            VBox card = new VBox(3, nameLabel, descLabel);
-            card.setStyle(StyleConstants.CARD_NORMAL);
-            card.setMaxWidth(Double.MAX_VALUE);
-            GridPane.setHgrow(card, Priority.ALWAYS);
-
-            card.setOnMouseClicked(e -> {
-                if (selectedCard != null) {
-                    selectedCard.setStyle(StyleConstants.CARD_NORMAL);
-                    selectedName.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1A1614;");
-                }
-                card.setStyle(StyleConstants.CARD_SELECTED);
-                nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #7B2D3E;");
-                selectedRole = roleId;
-                selectedCard = card;
-                selectedName = nameLabel;
-            });
-
-            grid.add(card, i % 2, i / 2);
-        }
-
-        ColumnConstraints col = new ColumnConstraints();
-        col.setPercentWidth(50);
-        grid.getColumnConstraints().addAll(col, col);
-        return grid;
+    private static String fieldStyle(boolean focused) {
+        String border = focused ? "#7B2D3E" : "#E8E2DF";
+        String width  = focused ? "1.5px"   : "1px";
+        String shadow = focused ? "-fx-effect: dropshadow(gaussian, rgba(123,45,62,0.15), 4, 0, 0, 0);" : "";
+        return "-fx-background-color: white; -fx-border-color: " + border + "; " +
+               "-fx-border-width: " + width + "; -fx-border-radius: 8px; " +
+               "-fx-background-radius: 8px; -fx-padding: 10px 12px; -fx-font-size: 13px; " + shadow;
     }
 }

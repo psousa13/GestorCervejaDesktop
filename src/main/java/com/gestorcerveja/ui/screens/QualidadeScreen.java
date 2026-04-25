@@ -1,5 +1,6 @@
 package com.gestorcerveja.ui.screens;
 
+import com.gestorcerveja.ui.components.*;
 import com.gestorcerveja.ui.components.TableBuilder;
 import javafx.scene.layout.VBox;
 
