@@ -4,34 +4,30 @@ import com.gestorcerveja.model.Usuario;
 
 public class SessionManager {
 
-    private static String  currentRole = "admin";
+    private static String  currentRole = "ADMIN";
     private static Usuario currentUser = null;
 
-    // ── Getters / Setters ─────────────────────────────────────────────────────
-
     public static String getRole()             { return currentRole; }
-    public static void   setRole(String role)  { currentRole = role; }
+    /** Normaliza sempre para UPPERCASE ao gravar. */
+    public static void   setRole(String role)  { currentRole = role == null ? "ADMIN" : role.toUpperCase(); }
 
     public static Usuario getUser()              { return currentUser; }
     public static void    setUser(Usuario user)  { currentUser = user; }
 
-    /** Nome do utilizador autenticado, ou "Utilizador" se não houver sessão. */
     public static String getUserNome() {
         return (currentUser != null) ? currentUser.getNome() : "Utilizador";
     }
 
-    /** Termina a sessão actual (usar ao fazer logout). */
     public static void clear() {
-        currentRole = "admin";
+        currentRole = "ADMIN";
         currentUser = null;
     }
-
-    // ── Labels de Role ────────────────────────────────────────────────────────
 
     public static String getRoleLabel() { return getRoleLabelNormalize(currentRole); }
 
     public static String getRoleLabelNormalize(String role) {
-        return switch (role) {
+        if (role == null) return "Utilizador";
+        return switch (role.toUpperCase()) {
             case "ADMIN"     -> "Administrador";
             case "PRODUCAO"  -> "Gestor de Produção";
             case "OPERADOR"  -> "Operador de Produção";
@@ -42,14 +38,12 @@ public class SessionManager {
         };
     }
 
-    // ── Navegação por Role ────────────────────────────────────────────────────
-
     public static String[][] getNavGroups() {
-        return switch (currentRole) {
+        return switch (currentRole.toUpperCase()) {
             case "ADMIN" -> new String[][]{
                     {"Principal",  "dashboard","Dashboard"},
-                    {"Comercial",  "pedidos","Pedidos",      "clientes","Clientes",   "faturas","Faturas"},
-                    {"Produção",   "receitas","Receitas",     "lotes","Lotes",        "producao","Etapas de Produção", "ingredientes","Ingredientes"},
+                    {"Comercial",  "pedidos","Pedidos",       "clientes","Clientes",     "faturas","Faturas"},
+                    {"Produção",   "receitas","Receitas",      "lotes","Lotes",           "producao","Etapas de Produção", "ingredientes","Ingredientes"},
                     {"Logística",  "veiculos","Veículos"},
                     {"Sistema",    "utilizadores","Utilizadores"},
             };
@@ -59,8 +53,8 @@ public class SessionManager {
                     {"Pedidos",   "pedidos","Pedidos"},
             };
             case "OPERADOR" -> new String[][]{
-                    {"Principal",      "dashboard","Dashboard"},
-                    {"O Meu Trabalho", "producao","Etapas de Produção", "lotes","Lotes"},
+                    {"Principal",       "dashboard","Dashboard"},
+                    {"O Meu Trabalho",  "producao","Etapas de Produção", "lotes","Lotes"},
             };
             case "QUALIDADE" -> new String[][]{
                     {"Principal",  "dashboard","Dashboard"},

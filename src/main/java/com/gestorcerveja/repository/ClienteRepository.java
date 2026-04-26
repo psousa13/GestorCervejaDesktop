@@ -13,19 +13,17 @@ public class ClienteRepository {
 
     public List<Cliente> findAll() throws SQLException {
         List<Cliente> list = new ArrayList<>();
-        String sql = "SELECT * FROM Cliente";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             ResultSet rs = st.executeQuery("SELECT * FROM Cliente")) {
             while (rs.next()) list.add(mapBase(rs));
         }
         return list;
     }
 
     public Cliente findById(int id) throws SQLException {
-        String sql = "SELECT * FROM Cliente WHERE idcliente = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Cliente WHERE idcliente=?")) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return mapBase(rs);
@@ -34,41 +32,31 @@ public class ClienteRepository {
     }
 
     public ClienteParticular findParticular(int id) throws SQLException {
-        String sql = "SELECT c.*, cp.nome_completo, cp.nif FROM Cliente c JOIN ClienteParticular cp ON c.idcliente = cp.idcliente WHERE c.idcliente = ?";
+        String sql = "SELECT c.*, cp.nome_completo, cp.nif FROM Cliente c JOIN ClienteParticular cp ON c.idcliente=cp.idcliente WHERE c.idcliente=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return new ClienteParticular(
-                    rs.getInt("idcliente"),
-                    rs.getString("email"),
-                    rs.getString("telefone"),
+                    rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
                     rs.getDate("data_registo").toLocalDate(),
-                    rs.getString("nome_completo"),
-                    rs.getString("nif")
-            );
+                    rs.getString("nome_completo"), rs.getString("nif"));
         }
         return null;
     }
 
     public ClienteRevendedor findRevendedor(int id) throws SQLException {
-        String sql = "SELECT c.*, cr.nome_empresa, cr.vat_empresa, cr.contacto_principal, cr.departamento, cr.telefone_empresa, cr.nota_interna FROM Cliente c JOIN ClienteRevendedor cr ON c.idcliente = cr.idcliente WHERE c.idcliente = ?";
+        String sql = "SELECT c.*, cr.nome_empresa, cr.vat_empresa, cr.contacto_principal, cr.departamento, cr.telefone_empresa, cr.nota_interna FROM Cliente c JOIN ClienteRevendedor cr ON c.idcliente=cr.idcliente WHERE c.idcliente=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return new ClienteRevendedor(
-                    rs.getInt("idcliente"),
-                    rs.getString("email"),
-                    rs.getString("telefone"),
-                    rs.getDate("data_registo").toLocalDate(),
-                    rs.getString("nome_empresa"),
-                    rs.getString("vat_empresa"),
-                    rs.getString("contacto_principal"),
-                    rs.getString("departamento"),
-                    rs.getString("telefone_empresa"),
-                    rs.getString("nota_interna")
-            );
+                    rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
+                    rs.getDate("data_registo").toLocalDate(), rs.getString("nome_empresa"),
+                    rs.getString("vat_empresa"), rs.getString("contacto_principal"),
+                    rs.getString("departamento"), rs.getString("telefone_empresa"),
+                    rs.getString("nota_interna"));
         }
         return null;
     }
@@ -90,44 +78,50 @@ public class ClienteRepository {
         String sql = "INSERT INTO ClienteParticular (idcliente, nome_completo, nif) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idcliente);
-            ps.setString(2, cp.getNomeCompleto());
-            ps.setString(3, cp.getNif());
+            ps.setInt(1, idcliente); ps.setString(2, cp.getNomeCompleto()); ps.setString(3, cp.getNif());
             ps.executeUpdate();
         }
     }
 
     public void insertRevendedor(int idcliente, ClienteRevendedor cr) throws SQLException {
-        String sql = "INSERT INTO ClienteRevendedor (idcliente, nome_empresa, vat_empresa, contacto_principal, departamento, telefone_empresa, nota_interna) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ClienteRevendedor (idcliente, nome_empresa, vat_empresa, contacto_principal, departamento, telefone_empresa, nota_interna) VALUES (?,?,?,?,?,?,?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idcliente);
-            ps.setString(2, cr.getNomeEmpresa());
-            ps.setString(3, cr.getVatEmpresa());
-            ps.setString(4, cr.getContactoPrincipal());
-            ps.setString(5, cr.getDepartamento());
-            ps.setString(6, cr.getTelefoneEmpresa());
-            ps.setString(7, cr.getNotaInterna());
+            ps.setInt(1, idcliente); ps.setString(2, cr.getNomeEmpresa()); ps.setString(3, cr.getVatEmpresa());
+            ps.setString(4, cr.getContactoPrincipal()); ps.setString(5, cr.getDepartamento());
+            ps.setString(6, cr.getTelefoneEmpresa()); ps.setString(7, cr.getNotaInterna());
             ps.executeUpdate();
         }
     }
 
+    /** Atualiza campos base + campos de ClienteParticular. */
+    public void updateParticular(int id, String email, String telefone,
+                                 String nomeCompleto, String nif) throws SQLException {
+        try (Connection conn = DBConnection.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE Cliente SET email=?, telefone=? WHERE idcliente=?")) {
+                ps.setString(1, email); ps.setString(2, telefone); ps.setInt(3, id);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE ClienteParticular SET nome_completo=?, nif=? WHERE idcliente=?")) {
+                ps.setString(1, nomeCompleto); ps.setString(2, nif); ps.setInt(3, id);
+                ps.executeUpdate();
+            }
+        }
+    }
+
     public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM Cliente WHERE idcliente = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM Cliente WHERE idcliente=?")) {
             ps.setInt(1, id);
             ps.executeUpdate();
         }
     }
 
     private Cliente mapBase(ResultSet rs) throws SQLException {
-        return new Cliente(
-                rs.getInt("idcliente"),
-                rs.getString("tipo_cliente"),
-                rs.getString("email"),
-                rs.getString("telefone"),
-                rs.getDate("data_registo").toLocalDate()
-        );
+        return new Cliente(rs.getInt("idcliente"), rs.getString("tipo_cliente"),
+                rs.getString("email"), rs.getString("telefone"),
+                rs.getDate("data_registo").toLocalDate());
     }
 }

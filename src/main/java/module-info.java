@@ -8,4 +8,6 @@ module com.gestorcerveja.gestorcervejadesktop {
     opens com.gestorcerveja.ui to javafx.fxml;
     exports com.gestorcerveja.ui;
     exports com.gestorcerveja.model;
+    exports com.gestorcerveja.ui.components;
+    exports com.gestorcerveja.ui.util;
 }

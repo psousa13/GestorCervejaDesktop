@@ -11,19 +11,17 @@ public class IngredienteRepository {
 
     public List<Ingrediente> findAll() throws SQLException {
         List<Ingrediente> list = new ArrayList<>();
-        String sql = "SELECT * FROM Ingrediente";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             ResultSet rs = st.executeQuery("SELECT * FROM Ingrediente")) {
             while (rs.next()) list.add(map(rs));
         }
         return list;
     }
 
     public Ingrediente findById(int id) throws SQLException {
-        String sql = "SELECT * FROM Ingrediente WHERE idingrediente = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Ingrediente WHERE idingrediente = ?")) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return map(rs);
@@ -33,10 +31,9 @@ public class IngredienteRepository {
 
     public List<Ingrediente> findBelowMinStock() throws SQLException {
         List<Ingrediente> list = new ArrayList<>();
-        String sql = "SELECT * FROM Ingrediente WHERE stockatual < stockminimo";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             ResultSet rs = st.executeQuery("SELECT * FROM Ingrediente WHERE stockatual < stockminimo")) {
             while (rs.next()) list.add(map(rs));
         }
         return list;
@@ -54,10 +51,22 @@ public class IngredienteRepository {
         }
     }
 
-    public void updateStock(int id, double novoStock) throws SQLException {
-        String sql = "UPDATE Ingrediente SET stockatual = ? WHERE idingrediente = ?";
+    public void update(int id, String nome, String unidade, double stockAtual, double stockMinimo) throws SQLException {
+        String sql = "UPDATE Ingrediente SET nome=?, unidade=?, stockatual=?, stockminimo=? WHERE idingrediente=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, nome);
+            ps.setString(2, unidade);
+            ps.setDouble(3, stockAtual);
+            ps.setDouble(4, stockMinimo);
+            ps.setInt(5, id);
+            ps.executeUpdate();
+        }
+    }
+
+    public void updateStock(int id, double novoStock) throws SQLException {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement("UPDATE Ingrediente SET stockatual=? WHERE idingrediente=?")) {
             ps.setDouble(1, novoStock);
             ps.setInt(2, id);
             ps.executeUpdate();
@@ -65,21 +74,15 @@ public class IngredienteRepository {
     }
 
     public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM Ingrediente WHERE idingrediente = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM Ingrediente WHERE idingrediente=?")) {
             ps.setInt(1, id);
             ps.executeUpdate();
         }
     }
 
     private Ingrediente map(ResultSet rs) throws SQLException {
-        return new Ingrediente(
-                rs.getInt("idingrediente"),
-                rs.getString("nome"),
-                rs.getString("unidade"),
-                rs.getDouble("stockatual"),
-                rs.getDouble("stockminimo")
-        );
+        return new Ingrediente(rs.getInt("idingrediente"), rs.getString("nome"),
+                rs.getString("unidade"), rs.getDouble("stockatual"), rs.getDouble("stockminimo"));
     }
 }

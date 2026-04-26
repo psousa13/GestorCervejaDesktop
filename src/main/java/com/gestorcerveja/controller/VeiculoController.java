@@ -9,24 +9,16 @@ import java.util.List;
 public class VeiculoController {
     private final VeiculoService service = new VeiculoService();
 
-    public List<Veiculo> listAll() throws SQLException {
-        return service.getAll();
-    }
+    public List<Veiculo> listAll() throws SQLException { return service.getAll(); }
 
-    public void create(String matricula, String marca, String cor,
-                       String nome, double capacidade, String tipo) throws SQLException {
+    public void create(String matricula, String marca, String cor, String nome,
+                       double capacidade, String tipo) throws SQLException {
         service.create(matricula, marca, cor, nome, capacidade, tipo);
     }
 
-    public void addCarga(int id, double litros) throws SQLException {
-        service.addCarga(id, litros);
+    public void update(int id, String nome, String tipo, String marca, String cor, double capacidade) throws SQLException {
+        service.update(id, nome, tipo, marca, cor, capacidade);
     }
 
-    public void clearCarga(int id) throws SQLException {
-        service.clearCarga(id);
-    }
-
-    public void delete(int id) throws SQLException {
-        service.delete(id);
-    }
+    public void delete(int id) throws SQLException { service.delete(id); }
 }
