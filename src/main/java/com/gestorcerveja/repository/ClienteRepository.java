@@ -1,127 +1,64 @@
 package com.gestorcerveja.repository;
 
-import com.gestorcerveja.db.DBConnection;
-import com.gestorcerveja.model.Cliente;
-import com.gestorcerveja.model.ClienteParticular;
-import com.gestorcerveja.model.ClienteRevendedor;
-
-import java.sql.*;
-import java.util.ArrayList;
+import com.gestorcerveja.model.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public class ClienteRepository {
+    private final JdbcTemplate jdbc;
+    public ClienteRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
-    public List<Cliente> findAll() throws SQLException {
-        List<Cliente> list = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM Cliente")) {
-            while (rs.next()) list.add(mapBase(rs));
-        }
-        return list;
+    private final RowMapper<Cliente> baseMapper = (rs, n) -> new Cliente(
+            rs.getInt("idcliente"), rs.getString("tipo_cliente"), rs.getString("email"),
+            rs.getString("telefone"), rs.getDate("data_registo").toLocalDate());
+
+    private final RowMapper<ClienteParticular> particularMapper = (rs, n) -> new ClienteParticular(
+            rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
+            rs.getDate("data_registo").toLocalDate(),
+            rs.getString("nome_completo"), rs.getString("nif"));
+
+    private final RowMapper<ClienteRevendedor> revendedorMapper = (rs, n) -> new ClienteRevendedor(
+            rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
+            rs.getDate("data_registo").toLocalDate(), rs.getString("nome_empresa"),
+            rs.getString("vat_empresa"), rs.getString("contacto_principal"),
+            rs.getString("departamento"), rs.getString("telefone_empresa"), rs.getString("nota_interna"));
+
+    public List<Cliente>           findAll()                { return jdbc.query("SELECT * FROM Cliente", baseMapper); }
+    public Optional<Cliente>       findById(int id)         { return jdbc.query("SELECT * FROM Cliente WHERE idcliente=?", baseMapper, id).stream().findFirst(); }
+    public Optional<ClienteParticular> findParticular(int id) {
+        return jdbc.query("SELECT c.*,cp.nome_completo,cp.nif FROM Cliente c JOIN ClienteParticular cp ON c.idcliente=cp.idcliente WHERE c.idcliente=?",
+                particularMapper, id).stream().findFirst();
+    }
+    public Optional<ClienteRevendedor> findRevendedor(int id) {
+        return jdbc.query("SELECT c.*,cr.nome_empresa,cr.vat_empresa,cr.contacto_principal,cr.departamento,cr.telefone_empresa,cr.nota_interna FROM Cliente c JOIN ClienteRevendedor cr ON c.idcliente=cr.idcliente WHERE c.idcliente=?",
+                revendedorMapper, id).stream().findFirst();
     }
 
-    public Cliente findById(int id) throws SQLException {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT * FROM Cliente WHERE idcliente=?")) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapBase(rs);
-        }
-        return null;
+    public int insertBase(Cliente c) {
+        return jdbc.queryForObject(
+                "INSERT INTO Cliente (tipo_cliente,email,telefone) VALUES (?,?,?) RETURNING idcliente",
+                Integer.class, c.getTipoCliente(), c.getEmail(), c.getTelefone());
+    }
+    public void insertParticular(int id, ClienteParticular cp) {
+        jdbc.update("INSERT INTO ClienteParticular (idcliente,nome_completo,nif) VALUES (?,?,?)",
+                id, cp.getNomeCompleto(), cp.getNif());
+    }
+    public void insertRevendedor(int id, ClienteRevendedor cr) {
+        jdbc.update("INSERT INTO ClienteRevendedor (idcliente,nome_empresa,vat_empresa,contacto_principal,departamento,telefone_empresa,nota_interna) VALUES (?,?,?,?,?,?,?)",
+                id, cr.getNomeEmpresa(), cr.getVatEmpresa(), cr.getContactoPrincipal(),
+                cr.getDepartamento(), cr.getTelefoneEmpresa(), cr.getNotaInterna());
     }
 
-    public ClienteParticular findParticular(int id) throws SQLException {
-        String sql = "SELECT c.*, cp.nome_completo, cp.nif FROM Cliente c JOIN ClienteParticular cp ON c.idcliente=cp.idcliente WHERE c.idcliente=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return new ClienteParticular(
-                    rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
-                    rs.getDate("data_registo").toLocalDate(),
-                    rs.getString("nome_completo"), rs.getString("nif"));
-        }
-        return null;
+    @Transactional
+    public void updateParticular(int id, String email, String telefone, String nomeCompleto, String nif) {
+        jdbc.update("UPDATE Cliente SET email=?,telefone=? WHERE idcliente=?", email, telefone, id);
+        jdbc.update("UPDATE ClienteParticular SET nome_completo=?,nif=? WHERE idcliente=?", nomeCompleto, nif, id);
     }
 
-    public ClienteRevendedor findRevendedor(int id) throws SQLException {
-        String sql = "SELECT c.*, cr.nome_empresa, cr.vat_empresa, cr.contacto_principal, cr.departamento, cr.telefone_empresa, cr.nota_interna FROM Cliente c JOIN ClienteRevendedor cr ON c.idcliente=cr.idcliente WHERE c.idcliente=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return new ClienteRevendedor(
-                    rs.getInt("idcliente"), rs.getString("email"), rs.getString("telefone"),
-                    rs.getDate("data_registo").toLocalDate(), rs.getString("nome_empresa"),
-                    rs.getString("vat_empresa"), rs.getString("contacto_principal"),
-                    rs.getString("departamento"), rs.getString("telefone_empresa"),
-                    rs.getString("nota_interna"));
-        }
-        return null;
-    }
-
-    public int insert(Cliente c) throws SQLException {
-        String sql = "INSERT INTO Cliente (tipo_cliente, email, telefone) VALUES (?, ?, ?) RETURNING idcliente";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, c.getTipoCliente());
-            ps.setString(2, c.getEmail());
-            ps.setString(3, c.getTelefone());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        }
-        return -1;
-    }
-
-    public void insertParticular(int idcliente, ClienteParticular cp) throws SQLException {
-        String sql = "INSERT INTO ClienteParticular (idcliente, nome_completo, nif) VALUES (?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idcliente); ps.setString(2, cp.getNomeCompleto()); ps.setString(3, cp.getNif());
-            ps.executeUpdate();
-        }
-    }
-
-    public void insertRevendedor(int idcliente, ClienteRevendedor cr) throws SQLException {
-        String sql = "INSERT INTO ClienteRevendedor (idcliente, nome_empresa, vat_empresa, contacto_principal, departamento, telefone_empresa, nota_interna) VALUES (?,?,?,?,?,?,?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idcliente); ps.setString(2, cr.getNomeEmpresa()); ps.setString(3, cr.getVatEmpresa());
-            ps.setString(4, cr.getContactoPrincipal()); ps.setString(5, cr.getDepartamento());
-            ps.setString(6, cr.getTelefoneEmpresa()); ps.setString(7, cr.getNotaInterna());
-            ps.executeUpdate();
-        }
-    }
-
-    /** Atualiza campos base + campos de ClienteParticular. */
-    public void updateParticular(int id, String email, String telefone,
-                                 String nomeCompleto, String nif) throws SQLException {
-        try (Connection conn = DBConnection.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE Cliente SET email=?, telefone=? WHERE idcliente=?")) {
-                ps.setString(1, email); ps.setString(2, telefone); ps.setInt(3, id);
-                ps.executeUpdate();
-            }
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE ClienteParticular SET nome_completo=?, nif=? WHERE idcliente=?")) {
-                ps.setString(1, nomeCompleto); ps.setString(2, nif); ps.setInt(3, id);
-                ps.executeUpdate();
-            }
-        }
-    }
-
-    public void delete(int id) throws SQLException {
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM Cliente WHERE idcliente=?")) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        }
-    }
-
-    private Cliente mapBase(ResultSet rs) throws SQLException {
-        return new Cliente(rs.getInt("idcliente"), rs.getString("tipo_cliente"),
-                rs.getString("email"), rs.getString("telefone"),
-                rs.getDate("data_registo").toLocalDate());
-    }
+    public void delete(int id) { jdbc.update("DELETE FROM Cliente WHERE idcliente=?", id); }
 }

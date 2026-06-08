@@ -28,7 +28,7 @@ public class LotesScreen {
                         l.getDataProducao() != null ? l.getDataProducao().toString() : "—",
                         String.valueOf(l.getIdveiculo())
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

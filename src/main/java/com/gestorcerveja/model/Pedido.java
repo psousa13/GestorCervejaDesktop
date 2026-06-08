@@ -30,6 +30,9 @@ public class Pedido {
     public double getTotalLitros()              { return totalLitros; }
     public int getTotalGrade()                  { return totalGrade; }
 
+    public void setId(int id)                          { this.idpedido = id; }
+    public void setIdcliente(int id)                   { this.idcliente = id; }
+    public void setDataPedido(LocalDate d)            { this.dataPedido = d; }
     public void setEstado(String estado)             { this.estado = estado; }
     public void setDataEstimadaConclusao(LocalDate d){ this.dataEstimadaConclusao = d; }
     public void setTotalLitros(double v)             { this.totalLitros = v; }

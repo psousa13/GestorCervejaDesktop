@@ -23,7 +23,7 @@ public class VeiculosScreen {
                         String.valueOf(v.getId()), v.getMatricula(), v.getNome(), v.getTipo(), v.getMarca(),
                         v.getCapacidade() + "L", v.getOcupacaoAtual() + "L / " + v.getCapacidade() + "L"
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

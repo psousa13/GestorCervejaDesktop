@@ -1,53 +1,17 @@
 package com.gestorcerveja.service;
 
 import com.gestorcerveja.model.Fatura;
-import com.gestorcerveja.model.FaturaItem;
-import com.gestorcerveja.model.PedidoItem;
 import com.gestorcerveja.repository.FaturaRepository;
-import com.gestorcerveja.repository.PedidoRepository;
-
-import java.sql.SQLException;
-import java.time.LocalDate;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class FaturaService {
-    private final FaturaRepository faturaRepo   = new FaturaRepository();
-    private final PedidoRepository pedidoRepo   = new PedidoRepository();
-    private final ReceitaService receitaService = new ReceitaService();
+    private final FaturaRepository repo;
+    public FaturaService(FaturaRepository repo) { this.repo = repo; }
 
-    public Fatura getByPedido(int idpedido) throws SQLException {
-        Fatura f = faturaRepo.findByPedido(idpedido);
-        if (f == null) throw new IllegalArgumentException("No fatura for pedido " + idpedido);
-        return f;
-    }
-
-    public List<FaturaItem> getItems(int idfatura) throws SQLException {
-        return faturaRepo.findItemsByFatura(idfatura);
-    }
-
-    public int generateFromPedido(int idpedido) throws SQLException {
-        if (faturaRepo.findByPedido(idpedido) != null)
-            throw new IllegalStateException("Fatura already exists for pedido " + idpedido);
-        List<PedidoItem> items = pedidoRepo.findItemsByPedido(idpedido);
-        if (items.isEmpty()) throw new IllegalStateException("Pedido has no items.");
-
-        double total = 0;
-        for (PedidoItem item : items)
-            total += item.getQuantidadeLitros() * receitaService.getActivePrice(item.getIdreceita());
-
-        int newId = faturaRepo.insert(new Fatura(0, idpedido, LocalDate.now(), total, "Pendente"));
-
-        for (PedidoItem item : items) {
-            double price   = receitaService.getActivePrice(item.getIdreceita());
-            double subtotal = item.getQuantidadeLitros() * price;
-            faturaRepo.insertItem(new FaturaItem(0, newId, item.getIdreceita(), item.getQuantidadeLitros(), price, subtotal));
-        }
-        return newId;
-    }
-
-    public void updateEstado(int id, String estado) throws SQLException {
-        List<String> valid = List.of("Pendente", "Paga", "Cancelada");
-        if (!valid.contains(estado)) throw new IllegalArgumentException("Invalid estado: " + estado);
-        faturaRepo.updateEstado(id, estado);
+    public List<Fatura> getAll() { return repo.findAll(); }
+    public Fatura getByPedido(int idp) {
+        return repo.findByPedido(idp).orElseThrow(() -> new IllegalArgumentException("Sem fatura para pedido " + idp));
     }
 }

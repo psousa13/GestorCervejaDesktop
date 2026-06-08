@@ -28,7 +28,7 @@ public class ProducaoScreen {
                         r.getDataCriacao().toString(),
                         r.getDataConclusao() != null ? r.getDataConclusao().toString() : "—"
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

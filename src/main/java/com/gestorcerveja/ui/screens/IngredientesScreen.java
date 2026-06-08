@@ -26,7 +26,7 @@ public class IngredientesScreen {
                         String.valueOf(i.getStockAtual()), String.valueOf(i.getStockMinimo()),
                         i.getStockAtual() < i.getStockMinimo() ? "Crítico" : "OK"
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

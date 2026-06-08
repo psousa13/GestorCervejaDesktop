@@ -22,7 +22,7 @@ public class UtilizadoresScreen {
                     MainScreen.usuarioController.listAll().stream().map(u -> new String[]{
                         String.valueOf(u.getId()), u.getNome(), String.valueOf(u.getIdrole())
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 
@@ -82,7 +82,7 @@ public class UtilizadoresScreen {
             var roles = MainScreen.roleController.listAll();
             List<String> opts = roles.stream().map(r -> r.getId() + " – " + r.getNome()).toList();
             return List.of(new FormField("idrole","Role", FormField.Type.COMBO, opts));
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return List.of(new FormField("idrole","ID Role", FormField.Type.NUMBER));
         }
     }

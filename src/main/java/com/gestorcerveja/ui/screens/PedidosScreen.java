@@ -28,7 +28,7 @@ public class PedidosScreen {
                         p.getEstado(),
                         p.getDataEstimadaConclusao() != null ? p.getDataEstimadaConclusao().toString() : "—"
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

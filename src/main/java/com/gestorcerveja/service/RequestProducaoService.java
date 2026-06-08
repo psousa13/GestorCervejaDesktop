@@ -2,29 +2,17 @@ package com.gestorcerveja.service;
 
 import com.gestorcerveja.model.RequestProducao;
 import com.gestorcerveja.repository.RequestProducaoRepository;
-
-import java.sql.SQLException;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class RequestProducaoService {
-    private final RequestProducaoRepository repo = new RequestProducaoRepository();
+    private final RequestProducaoRepository repo;
+    public RequestProducaoService(RequestProducaoRepository repo) { this.repo = repo; }
 
-    public List<RequestProducao> getAll() throws SQLException {
-        return repo.findAll();
-    }
-
-    public RequestProducao getById(int id) throws SQLException {
-        RequestProducao r = repo.findById(id);
-        if (r == null) throw new IllegalArgumentException("RequestProducao " + id + " not found.");
-        return r;
-    }
-
-    public int create(int idusuario) throws SQLException {
-        return repo.insert(new RequestProducao(0, idusuario, "Pendente", null, null));
-    }
-
-    public void concluir(int id) throws SQLException {
-        getById(id);
-        repo.updateEstado(id, "Concluido");
-    }
+    public List<RequestProducao> getAll()        { return repo.findAll(); }
+    public RequestProducao getById(int id) { return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Request " + id + " não encontrado.")); }
+    public void create(int idusuario)            { repo.insert(idusuario); }
+    public void concluir(int id)                 { getById(id); repo.concluir(id); }
+    public void updateEstado(int id, String e)   { getById(id); repo.updateEstado(id, e); }
 }

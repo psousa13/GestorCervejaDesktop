@@ -34,7 +34,7 @@ public class FaturasScreen {
                     } catch (Exception ignored) {}
                 }
                 table.setItems(FXCollections.observableArrayList(rows));
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage()));
             }
         };

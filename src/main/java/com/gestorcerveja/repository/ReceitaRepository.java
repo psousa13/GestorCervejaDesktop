@@ -1,71 +1,36 @@
 package com.gestorcerveja.repository;
 
-import com.gestorcerveja.db.DBConnection;
 import com.gestorcerveja.model.Receita;
-
-import java.sql.*;
-import java.util.ArrayList;
+import com.gestorcerveja.model.ReceitaPreco;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public class ReceitaRepository {
+    private final JdbcTemplate jdbc;
+    public ReceitaRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
-    public List<Receita> findAll() throws SQLException {
-        List<Receita> list = new ArrayList<>();
-        String sql = "SELECT * FROM Receita";
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(map(rs));
-        }
-        return list;
+    private final RowMapper<Receita>     rm  = (rs, n) -> new Receita(rs.getInt("idreceita"), rs.getString("nome"), rs.getString("descricao"));
+    private final RowMapper<ReceitaPreco> rpm = (rs, n) -> new ReceitaPreco(rs.getInt("idpreco"), rs.getInt("idreceita"), rs.getDouble("preco_por_litro"), rs.getDate("data_inicio").toLocalDate());
+
+    public List<Receita>      findAll()         { return jdbc.query("SELECT * FROM Receita", rm); }
+    public Optional<Receita>  findById(int id)  { return jdbc.query("SELECT * FROM Receita WHERE idreceita=?", rm, id).stream().findFirst(); }
+    public Optional<ReceitaPreco> findActivePrice(int idreceita) {
+        return jdbc.query("SELECT * FROM ReceitaPreco WHERE idreceita=? AND ativo=true ORDER BY data_inicio DESC LIMIT 1", rpm, idreceita).stream().findFirst();
     }
 
-    public Receita findById(int id) throws SQLException {
-        String sql = "SELECT * FROM Receita WHERE idreceita = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return map(rs);
-        }
-        return null;
+    public void insert(String nome, String descricao) {
+        jdbc.update("INSERT INTO Receita (nome,descricao) VALUES (?,?)", nome, descricao);
     }
-
-    public void insert(Receita r) throws SQLException {
-        String sql = "INSERT INTO Receita (nome, descricao) VALUES (?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, r.getNome());
-            ps.setString(2, r.getDescricao());
-            ps.executeUpdate();
-        }
+    public void update(int id, String nome, String descricao) {
+        jdbc.update("UPDATE Receita SET nome=?,descricao=? WHERE idreceita=?", nome, descricao, id);
     }
-
-    public void update(Receita r) throws SQLException {
-        String sql = "UPDATE Receita SET nome = ?, descricao = ? WHERE idreceita = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, r.getNome());
-            ps.setString(2, r.getDescricao());
-            ps.setInt(3, r.getId());
-            ps.executeUpdate();
-        }
+    public void setPrice(int idreceita, double preco) {
+        jdbc.update("UPDATE ReceitaPreco SET ativo=false WHERE idreceita=?", idreceita);
+        jdbc.update("INSERT INTO ReceitaPreco (idreceita,preco_por_litro,data_inicio,ativo) VALUES (?,?,CURRENT_DATE,true)", idreceita, preco);
     }
-
-    public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM Receita WHERE idreceita = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        }
-    }
-
-    private Receita map(ResultSet rs) throws SQLException {
-        return new Receita(
-                rs.getInt("idreceita"),
-                rs.getString("nome"),
-                rs.getString("descricao")
-        );
-    }
+    public void delete(int id) { jdbc.update("DELETE FROM Receita WHERE idreceita=?", id); }
 }

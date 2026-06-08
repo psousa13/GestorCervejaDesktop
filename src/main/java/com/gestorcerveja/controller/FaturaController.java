@@ -1,29 +1,14 @@
 package com.gestorcerveja.controller;
 
 import com.gestorcerveja.model.Fatura;
-import com.gestorcerveja.model.FaturaItem;
 import com.gestorcerveja.service.FaturaService;
-
-import java.sql.SQLException;
+import org.springframework.stereotype.Component;
 import java.util.List;
 
+@Component
 public class FaturaController {
-    private final FaturaService service = new FaturaService();
-
-    public Fatura getByPedido(int idpedido) throws SQLException {
-        return service.getByPedido(idpedido);
-    }
-
-    public List<FaturaItem> listItems(int idfatura) throws SQLException {
-        return service.getItems(idfatura);
-    }
-
-    /** Gera uma fatura a partir de um pedido e devolve o id gerado. */
-    public int generate(int idpedido) throws SQLException {
-        return service.generateFromPedido(idpedido);
-    }
-
-    public void updateEstado(int id, String estado) throws SQLException {
-        service.updateEstado(id, estado);
-    }
+    private final FaturaService service;
+    public FaturaController(FaturaService service) { this.service = service; }
+    public List<Fatura> listAll()          { return service.getAll(); }
+    public Fatura getByPedido(int idp)     { return service.getByPedido(idp); }
 }

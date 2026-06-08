@@ -2,26 +2,18 @@ package com.gestorcerveja.controller;
 
 import com.gestorcerveja.model.Lote;
 import com.gestorcerveja.service.LoteService;
-
-import java.sql.SQLException;
+import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 public class LoteController {
-    private final LoteService service = new LoteService();
+    private final LoteService service;
+    public LoteController(LoteService service) { this.service = service; }
 
-    public List<Lote> listAll()                        throws SQLException { return service.getAll(); }
-    public List<Lote> listByPedido(int idpedido)       throws SQLException { return service.getByPedido(idpedido); }
-
-    public int create(int idpedido, int idreceita, double litros,
-                      LocalDate dataProducao, int idveiculo,
-                      int idrequestProducao)            throws SQLException {
-        return service.create(idpedido, idreceita, litros, dataProducao, idveiculo, idrequestProducao);
-    }
-
-    public void updateVeiculo(int idlote, int idveiculo) throws SQLException {
-        service.updateVeiculo(idlote, idveiculo);
-    }
-
-    public void delete(int id)                          throws SQLException { service.delete(id); }
+    public List<Lote> listAll()               { return service.getAll(); }
+    public List<Lote> listByPedido(int idp)   { return service.getByPedido(idp); }
+    public int create(int idpedido, int idreceita, double litros, LocalDate dataProducao, int idveiculo, int idrequest) { return service.create(idpedido, idreceita, litros, dataProducao, idveiculo, idrequest); }
+    public void updateVeiculo(int idlote, int idveiculo) { service.updateVeiculo(idlote, idveiculo); }
+    public void delete(int id)                { service.delete(id); }
 }

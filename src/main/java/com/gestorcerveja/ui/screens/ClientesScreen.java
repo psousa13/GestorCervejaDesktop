@@ -25,7 +25,7 @@ public class ClientesScreen {
                         c.getTelefone() != null ? c.getTelefone() : "—",
                         c.getDataRegisto().toString()
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

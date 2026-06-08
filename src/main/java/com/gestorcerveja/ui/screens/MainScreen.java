@@ -1,5 +1,6 @@
 package com.gestorcerveja.ui.screens;
 
+import com.gestorcerveja.SpringContext;
 import com.gestorcerveja.controller.*;
 import com.gestorcerveja.ui.components.ScreenBundle;
 import com.gestorcerveja.ui.components.Sidebar;
@@ -8,25 +9,44 @@ import com.gestorcerveja.ui.util.ExportUtils;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 
+/**
+ * Screen principal da aplicação.
+ *
+ * Os controllers de negócio são obtidos do contexto Spring via
+ * {@link SpringContext#getBean(Class)} — garantindo que são
+ * os mesmos singletons geridos pelo Spring (com todas as
+ * dependências injetadas).
+ */
 public class MainScreen {
 
-    public  static TopBar    topBar;
-    /** StackPane exposto para que os modais e a PerfilScreen possam fazer overlay. */
-    public  static StackPane contentArea;
+    public static TopBar    topBar;
+    public static StackPane contentArea;
 
-    // Controllers — ponto único de acesso para toda a UI
-    public static final IngredienteController     ingredienteController  = new IngredienteController();
-    public static final ReceitaController         receitaController      = new ReceitaController();
-    public static final ClienteController         clienteController      = new ClienteController();
-    public static final PedidoController          pedidoController       = new PedidoController();
-    public static final VeiculoController         veiculoController      = new VeiculoController();
-    public static final LoteController            loteController         = new LoteController();
-    public static final FaturaController          faturaController       = new FaturaController();
-    public static final RequestProducaoController requestController      = new RequestProducaoController();
-    public static final UsuarioController         usuarioController      = new UsuarioController();
-    public static final RoleController            roleController         = new RoleController();
+    // ── Beans Spring — carregados uma vez em build() ──────────────────────────
+    public static IngredienteController     ingredienteController;
+    public static ReceitaController         receitaController;
+    public static ClienteController         clienteController;
+    public static PedidoController          pedidoController;
+    public static VeiculoController         veiculoController;
+    public static LoteController            loteController;
+    public static FaturaController          faturaController;
+    public static RequestProducaoController requestController;
+    public static UsuarioController         usuarioController;
+    public static RoleController            roleController;
 
     public static HBox build() {
+        // Obtém todos os beans do contexto Spring
+        ingredienteController  = SpringContext.getBean(IngredienteController.class);
+        receitaController      = SpringContext.getBean(ReceitaController.class);
+        clienteController      = SpringContext.getBean(ClienteController.class);
+        pedidoController       = SpringContext.getBean(PedidoController.class);
+        veiculoController      = SpringContext.getBean(VeiculoController.class);
+        loteController         = SpringContext.getBean(LoteController.class);
+        faturaController       = SpringContext.getBean(FaturaController.class);
+        requestController      = SpringContext.getBean(RequestProducaoController.class);
+        usuarioController      = SpringContext.getBean(UsuarioController.class);
+        roleController         = SpringContext.getBean(RoleController.class);
+
         HBox root = new HBox();
         root.setPrefSize(1280, 760);
         root.setStyle("-fx-background-color: #FAF8F6;");
@@ -92,26 +112,12 @@ public class MainScreen {
 
         if (contentArea != null) contentArea.getChildren().setAll(bundle.view());
 
-        // Botões da TopBar
         if (topBar != null) {
-            // Perfil: sem botões de ação na topbar
-            if ("perfil".equals(id)) {
-                topBar.setOnNew(null);
-                topBar.setOnExport(null);
-                return;
-            }
-
+            if ("perfil".equals(id)) { topBar.setOnNew(null); topBar.setOnExport(null); return; }
             topBar.setOnNew(bundle.onNew());
-
             if (bundle.table() != null) {
-                final String exportTitle = title;
-                topBar.setOnExport(() ->
-                    ExportUtils.export(
-                        bundle.table(),
-                        contentArea.getScene().getWindow(),
-                        exportTitle
-                    )
-                );
+                final String t = title;
+                topBar.setOnExport(() -> ExportUtils.export(bundle.table(), contentArea.getScene().getWindow(), t));
             } else {
                 topBar.setOnExport(null);
             }

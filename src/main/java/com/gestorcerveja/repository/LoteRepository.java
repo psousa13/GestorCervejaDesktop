@@ -1,93 +1,35 @@
 package com.gestorcerveja.repository;
 
-import com.gestorcerveja.db.DBConnection;
 import com.gestorcerveja.model.Lote;
-
-import java.sql.*;
-import java.util.ArrayList;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public class LoteRepository {
+    private final JdbcTemplate jdbc;
+    public LoteRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
-    public List<Lote> findAll() throws SQLException {
-        List<Lote> list = new ArrayList<>();
-        String sql = "SELECT * FROM Lote";
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(map(rs));
-        }
-        return list;
-    }
+    private final RowMapper<Lote> mapper = (rs, n) -> new Lote(
+            rs.getInt("idlote"), rs.getInt("idpedido"), rs.getInt("idreceita"),
+            rs.getDouble("litros"),
+            rs.getDate("data_producao") != null ? rs.getDate("data_producao").toLocalDate() : null,
+            rs.getInt("idveiculo"), rs.getInt("idrequest_producao"));
 
-    public List<Lote> findByPedido(int idpedido) throws SQLException {
-        List<Lote> list = new ArrayList<>();
-        String sql = "SELECT * FROM Lote WHERE idpedido = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idpedido);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) list.add(map(rs));
-        }
-        return list;
-    }
+    public List<Lote>    findAll()               { return jdbc.query("SELECT * FROM Lote", mapper); }
+    public Optional<Lote> findById(int id)        { return jdbc.query("SELECT * FROM Lote WHERE idlote=?", mapper, id).stream().findFirst(); }
+    public List<Lote>    findByPedido(int idped)  { return jdbc.query("SELECT * FROM Lote WHERE idpedido=?", mapper, idped); }
 
-    public Lote findById(int id) throws SQLException {
-        String sql = "SELECT * FROM Lote WHERE idlote = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return map(rs);
-        }
-        return null;
+    public int insert(Lote l) {
+        return jdbc.queryForObject(
+                "INSERT INTO Lote (idpedido,idreceita,litros,data_producao,idveiculo,idrequest_producao) VALUES (?,?,?,?,?,?) RETURNING idlote",
+                Integer.class, l.getIdpedido(), l.getIdreceita(), l.getLitros(),
+                l.getDataProducao() != null ? java.sql.Date.valueOf(l.getDataProducao()) : null,
+                l.getIdveiculo(), l.getIdrequestProducao());
     }
-
-    public int insert(Lote l) throws SQLException {
-        String sql = "INSERT INTO Lote (idpedido, idreceita, litros, data_producao, idveiculo, idrequest_producao) VALUES (?, ?, ?, ?, ?, ?) RETURNING idlote";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, l.getIdpedido());
-            ps.setInt(2, l.getIdreceita());
-            ps.setDouble(3, l.getLitros());
-            ps.setDate(4, l.getDataProducao() != null ? Date.valueOf(l.getDataProducao()) : null);
-            ps.setInt(5, l.getIdveiculo());
-            ps.setInt(6, l.getIdrequestProducao());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        }
-        return -1;
-    }
-
-    public void updateVeiculo(int idlote, int idveiculo) throws SQLException {
-        String sql = "UPDATE Lote SET idveiculo = ? WHERE idlote = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idveiculo);
-            ps.setInt(2, idlote);
-            ps.executeUpdate();
-        }
-    }
-
-    public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM Lote WHERE idlote = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        }
-    }
-
-    private Lote map(ResultSet rs) throws SQLException {
-        Date dp = rs.getDate("data_producao");
-        return new Lote(
-                rs.getInt("idlote"),
-                rs.getInt("idpedido"),
-                rs.getInt("idreceita"),
-                rs.getDouble("litros"),
-                dp != null ? dp.toLocalDate() : null,
-                rs.getInt("idveiculo"),
-                rs.getInt("idrequest_producao")
-        );
-    }
+    public void updateVeiculo(int idlote, int idveiculo) { jdbc.update("UPDATE Lote SET idveiculo=? WHERE idlote=?", idveiculo, idlote); }
+    public void delete(int id)                           { jdbc.update("DELETE FROM Lote WHERE idlote=?", id); }
 }

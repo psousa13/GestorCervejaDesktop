@@ -1,66 +1,33 @@
 package com.gestorcerveja.repository;
 
-import com.gestorcerveja.db.DBConnection;
 import com.gestorcerveja.model.RequestProducao;
-
-import java.sql.*;
-import java.util.ArrayList;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
+@Repository
 public class RequestProducaoRepository {
+    private final JdbcTemplate jdbc;
+    public RequestProducaoRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
-    public List<RequestProducao> findAll() throws SQLException {
-        List<RequestProducao> list = new ArrayList<>();
-        String sql = "SELECT * FROM RequestProducao";
-        try (Connection conn = DBConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) list.add(map(rs));
-        }
-        return list;
+    private final RowMapper<RequestProducao> mapper = (rs, n) -> new RequestProducao(
+            rs.getInt("idrequest_producao"), rs.getInt("idusuario"),
+            rs.getString("estado"),
+            rs.getTimestamp("data_criacao") != null ? rs.getTimestamp("data_criacao").toLocalDateTime() : null,
+            rs.getTimestamp("data_conclusao") != null ? rs.getTimestamp("data_conclusao").toLocalDateTime() : null);
+
+    public List<RequestProducao>     findAll()        { return jdbc.query("SELECT * FROM RequestProducao", mapper); }
+    public Optional<RequestProducao> findById(int id) { return jdbc.query("SELECT * FROM RequestProducao WHERE idrequest_producao=?", mapper, id).stream().findFirst(); }
+
+    public void insert(int idusuario) {
+        jdbc.update("INSERT INTO RequestProducao (idusuario,estado,data_criacao) VALUES (?,'Pendente',NOW())", idusuario);
     }
-
-    public RequestProducao findById(int id) throws SQLException {
-        String sql = "SELECT * FROM RequestProducao WHERE idrequest_producao = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return map(rs);
-        }
-        return null;
+    public void concluir(int id) {
+        jdbc.update("UPDATE RequestProducao SET estado='Concluido',data_conclusao=NOW() WHERE idrequest_producao=?", id);
     }
-
-    public int insert(RequestProducao r) throws SQLException {
-        String sql = "INSERT INTO RequestProducao (idusuario, estado) VALUES (?, ?) RETURNING idrequest_producao";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, r.getIdusuario());
-            ps.setString(2, r.getEstado());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-        }
-        return -1;
-    }
-
-    public void updateEstado(int id, String estado) throws SQLException {
-        String sql = "UPDATE RequestProducao SET estado = ?, data_conclusao = CURRENT_TIMESTAMP WHERE idrequest_producao = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, estado);
-            ps.setInt(2, id);
-            ps.executeUpdate();
-        }
-    }
-
-    private RequestProducao map(ResultSet rs) throws SQLException {
-        Timestamp conclusao = rs.getTimestamp("data_conclusao");
-        return new RequestProducao(
-                rs.getInt("idrequest_producao"),
-                rs.getInt("idusuario"),
-                rs.getString("estado"),
-                rs.getTimestamp("data_criacao").toLocalDateTime(),
-                conclusao != null ? conclusao.toLocalDateTime() : null
-        );
+    public void updateEstado(int id, String estado) {
+        jdbc.update("UPDATE RequestProducao SET estado=? WHERE idrequest_producao=?", estado, id);
     }
 }

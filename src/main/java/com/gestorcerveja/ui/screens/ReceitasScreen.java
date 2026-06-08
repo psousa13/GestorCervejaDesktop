@@ -26,7 +26,7 @@ public class ReceitasScreen {
                         return new String[]{ String.valueOf(r.getId()), r.getNome(),
                             r.getDescricao() != null ? r.getDescricao() : "—", preco };
                     }).toList()));
-            } catch (SQLException e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
+            } catch (Exception e) { table.setPlaceholder(TableBuilder.errorLabel("Erro: " + e.getMessage())); }
         };
         refresh.run();
 

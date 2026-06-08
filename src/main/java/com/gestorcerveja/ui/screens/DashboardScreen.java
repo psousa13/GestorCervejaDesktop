@@ -49,7 +49,15 @@ public class DashboardScreen {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        banner.getChildren().addAll(left, spacer);
+        HBox quickBtns = new HBox(8);
+        quickBtns.setAlignment(Pos.CENTER_RIGHT);
+        for (String q : getQuickActions()) {
+            Button b = new Button(q);
+            b.setStyle(StyleConstants.QUICK_BTN);
+            quickBtns.getChildren().add(b);
+        }
+
+        banner.getChildren().addAll(left, spacer, quickBtns);
         return banner;
     }
 
@@ -151,6 +159,18 @@ public class DashboardScreen {
         };
     }
 
+    private static String[] getQuickActions() {
+        return switch (SessionManager.getRole()) {
+            case "ADMIN"     -> new String[]{"+ Pedido", "+ Lote", "+ Cliente"};
+            case "PRODUCAO"  -> new String[]{"+ Lote", "Ver Pendentes"};
+            case "OPERADOR"  -> new String[]{"Registar Etapa"};
+            case "QUALIDADE" -> new String[]{"+ Teste", "Ver Pendentes"};
+            case "ARMAZEM"   -> new String[]{"Entrada de Stock", "Ver Stock Crítico"};
+            case "COMERCIAL" -> new String[]{"+ Pedido", "+ Cliente", "Emitir Fatura"};
+            default          -> new String[]{};
+        };
+    }
+
     private static String[][] getStatsData() throws SQLException {
         return switch (SessionManager.getRole()) {
             case "ADMIN" -> new String[][]{
@@ -213,7 +233,7 @@ public class DashboardScreen {
                         }).toArray(String[][]::new);
                 default -> new String[][]{};
             };
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return new String[][]{{"Erro ao carregar", e.getMessage(), "", "red"}};
         }
     }
@@ -250,7 +270,7 @@ public class DashboardScreen {
                         }).toArray(String[][]::new);
                 default -> new String[][]{};
             };
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return new String[][]{{"Erro ao carregar", e.getMessage(), "", "red"}};
         }
     }

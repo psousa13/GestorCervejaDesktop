@@ -1,6 +1,6 @@
 package com.gestorcerveja.ui.screens;
 
-import com.gestorcerveja.ui.Main;
+import com.gestorcerveja.ui.JavaFXApplication;
 import com.gestorcerveja.ui.SessionManager;
 import com.gestorcerveja.ui.StyleConstants;
 import com.gestorcerveja.ui.components.FormField;
@@ -187,7 +187,7 @@ public class PerfilScreen {
         confirm.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.OK) {
                 SessionManager.clear();
-                Main.showLogin();
+                JavaFXApplication.showLogin();
             }
         });
     }

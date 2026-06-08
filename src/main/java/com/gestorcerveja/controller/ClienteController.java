@@ -1,32 +1,19 @@
 package com.gestorcerveja.controller;
 
-import com.gestorcerveja.model.Cliente;
-import com.gestorcerveja.model.ClienteParticular;
-import com.gestorcerveja.model.ClienteRevendedor;
+import com.gestorcerveja.model.*;
 import com.gestorcerveja.service.ClienteService;
-
-import java.sql.SQLException;
+import org.springframework.stereotype.Component;
 import java.util.List;
 
+@Component
 public class ClienteController {
-    private final ClienteService service = new ClienteService();
+    private final ClienteService service;
+    public ClienteController(ClienteService service) { this.service = service; }
 
-    public List<Cliente>    listAll()                throws SQLException { return service.getAll(); }
-    public ClienteParticular getParticular(int id)   throws SQLException { return service.getParticular(id); }
-    public ClienteRevendedor getRevendedor(int id)   throws SQLException { return service.getRevendedor(id); }
-
-    public void createParticular(String email, String telefone, String nomeCompleto, String nif) throws SQLException {
-        service.createParticular(email, telefone, nomeCompleto, nif);
-    }
-    public void createRevendedor(String email, String telefone, String nomeEmpresa, String vatEmpresa,
-                                 String contacto, String departamento, String telEmpresa, String nota) throws SQLException {
-        service.createRevendedor(email, telefone, nomeEmpresa, vatEmpresa, contacto, departamento, telEmpresa, nota);
-    }
-
-    public void updateParticular(int id, String email, String telefone,
-                                 String nomeCompleto, String nif) throws SQLException {
-        service.updateParticular(id, email, telefone, nomeCompleto, nif);
-    }
-
-    public void delete(int id) throws SQLException { service.delete(id); }
+    public List<Cliente>     listAll()                { return service.getAll(); }
+    public ClienteParticular getParticular(int id)    { return service.getParticular(id); }
+    public ClienteRevendedor getRevendedor(int id)    { return service.getRevendedor(id); }
+    public void createParticular(String email, String telefone, String nomeCompleto, String nif) { service.createParticular(email, telefone, nomeCompleto, nif); }
+    public void updateParticular(int id, String email, String telefone, String nomeCompleto, String nif) { service.updateParticular(id, email, telefone, nomeCompleto, nif); }
+    public void delete(int id)                        { service.delete(id); }
 }
