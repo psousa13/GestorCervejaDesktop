@@ -1,23 +1,8 @@
 package com.gestorcerveja.model;
-
 public class Role {
-    private int idrole;
-    private String nome;
-    private String descricao;
-
-    public Role(int idrole, String nome, String descricao) {
-        this.idrole    = idrole;
-        this.nome      = nome;
-        this.descricao = descricao;
-    }
-
-    public int getId()           { return idrole; }
-    public String getNome()      { return nome; }
-    public String getDescricao() { return descricao; }
-
-    public void setNome(String nome)           { this.nome = nome; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-
-    @Override
-    public String toString() { return "[" + idrole + "] " + nome; }
+    private int id; private String nome;
+    public Role() {}
+    public Role(int id, String nome) { this.id = id; this.nome = nome; }
+    public int getId() { return id; } public String getNome() { return nome; }
+    public void setId(int id) { this.id = id; } public void setNome(String n) { this.nome = n; }
 }

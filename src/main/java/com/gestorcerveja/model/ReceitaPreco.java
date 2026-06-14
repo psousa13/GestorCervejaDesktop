@@ -1,30 +1,16 @@
 package com.gestorcerveja.model;
-
 import java.time.LocalDate;
-
 public class ReceitaPreco {
-    private int idpreco;
-    private int idreceita;
-    private double precoPorLitro;
-    private LocalDate dataVigencia;
-
-    public ReceitaPreco(int idpreco, int idreceita, double precoPorLitro, LocalDate dataVigencia) {
-        this.idpreco       = idpreco;
-        this.idreceita     = idreceita;
-        this.precoPorLitro = precoPorLitro;
-        this.dataVigencia  = dataVigencia;
+    private int id; private int idReceita; private double precoPorLitro;
+    private LocalDate dataFim;
+    public ReceitaPreco() {}
+    public ReceitaPreco(int id, int idReceita, double precoPorLitro, LocalDate dataFim) {
+        this.id=id; this.idReceita=idReceita; this.precoPorLitro=precoPorLitro; this.dataFim=dataFim;
     }
-
-    public int getId()                 { return idpreco; }
-    public int getIdreceita()          { return idreceita; }
-    public double getPrecoPorLitro()   { return precoPorLitro; }
-    public LocalDate getDataVigencia() { return dataVigencia; }
-
-    public void setPrecoPorLitro(double v)      { this.precoPorLitro = v; }
-    public void setDataVigencia(LocalDate d)    { this.dataVigencia = d; }
-
-    @Override
-    public String toString() {
-        return "[" + idpreco + "] Receita: " + idreceita + " | " + precoPorLitro + "€/L desde " + dataVigencia;
-    }
+    public int getId() { return id; } public int getIdReceita() { return idReceita; }
+    public double getPrecoPorLitro() { return precoPorLitro; }
+    public LocalDate getDataFim() { return dataFim; }
+    public void setId(int id) { this.id=id; } public void setIdReceita(int i) { this.idReceita=i; }
+    public void setPrecoPorLitro(double p) { this.precoPorLitro=p; } 
+    public void setDataFim(LocalDate d) { this.dataFim=d; }
 }

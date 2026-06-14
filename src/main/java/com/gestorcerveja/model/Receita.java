@@ -1,23 +1,10 @@
 package com.gestorcerveja.model;
-
 public class Receita {
-    private int idreceita;
-    private String nome;
-    private String descricao;
-
-    public Receita(int idreceita, String nome, String descricao) {
-        this.idreceita = idreceita;
-        this.nome      = nome;
-        this.descricao = descricao;
-    }
-
-    public int getId()           { return idreceita; }
-    public String getNome()      { return nome; }
+    private int id; private String nome; private String descricao;
+    public Receita() {}
+    public Receita(int id, String nome, String descricao) { this.id=id; this.nome=nome; this.descricao=descricao; }
+    public int getId() { return id; } public String getNome() { return nome; }
     public String getDescricao() { return descricao; }
-
-    public void setNome(String nome)           { this.nome = nome; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-
-    @Override
-    public String toString() { return "[" + idreceita + "] " + nome; }
+    public void setId(int id) { this.id=id; } public void setNome(String n) { this.nome=n; }
+    public void setDescricao(String d) { this.descricao=d; }
 }

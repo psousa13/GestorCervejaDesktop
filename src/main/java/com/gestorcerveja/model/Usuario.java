@@ -1,27 +1,12 @@
 package com.gestorcerveja.model;
-
 public class Usuario {
-    private int idusuario;
-    private String nome;
-    private String senha;
-    private int idrole;
-
-    public Usuario(int idusuario, String nome, String senha, int idrole) {
-        this.idusuario = idusuario;
-        this.nome      = nome;
-        this.senha     = senha;
-        this.idrole    = idrole;
+    private int id; private String nome; private String senha; private int idrole;
+    public Usuario() {}
+    public Usuario(int id, String nome, String senha, int idrole) {
+        this.id=id; this.nome=nome; this.senha=senha; this.idrole=idrole;
     }
-
-    public int getId()       { return idusuario; }
-    public String getNome()  { return nome; }
-    public String getSenha() { return senha; }
-    public int getIdrole()   { return idrole; }
-
-    public void setNome(String nome)   { this.nome = nome; }
-    public void setSenha(String senha) { this.senha = senha; }
-    public void setIdrole(int idrole)  { this.idrole = idrole; }
-
-    @Override
-    public String toString() { return "[" + idusuario + "] " + nome + " (role: " + idrole + ")"; }
+    public int getId() { return id; } public String getNome() { return nome; }
+    public String getSenha() { return senha; } public int getIdrole() { return idrole; }
+    public void setId(int id) { this.id=id; } public void setNome(String n) { this.nome=n; }
+    public void setSenha(String s) { this.senha=s; } public void setIdrole(int r) { this.idrole=r; }
 }

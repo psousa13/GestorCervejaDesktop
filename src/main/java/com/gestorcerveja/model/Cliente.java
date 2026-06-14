@@ -1,34 +1,16 @@
 package com.gestorcerveja.model;
-
 import java.time.LocalDate;
-
 public class Cliente {
-    private int idcliente;
-    private String tipoCliente;
-    private String email;
-    private String telefone;
-    private LocalDate dataRegisto;
-
-    public Cliente(int idcliente, String tipoCliente, String email, String telefone, LocalDate dataRegisto) {
-        this.idcliente   = idcliente;
-        this.tipoCliente = tipoCliente;
-        this.email       = email;
-        this.telefone    = telefone;
-        this.dataRegisto = dataRegisto;
+    private int id; private String tipoCliente; private String email;
+    private String telefone; private LocalDate dataRegisto;
+    public Cliente() {}
+    public Cliente(int id, String tipoCliente, String email, String telefone, LocalDate dataRegisto) {
+        this.id=id; this.tipoCliente=tipoCliente; this.email=email; this.telefone=telefone; this.dataRegisto=dataRegisto;
     }
-
-    public int getId()               { return idcliente; }
-    public String getTipoCliente()   { return tipoCliente; }
-    public String getEmail()         { return email; }
-    public String getTelefone()      { return telefone; }
-    public LocalDate getDataRegisto(){ return dataRegisto; }
-
-    public void setEmail(String email)        { this.email = email; }
-    public void setTelefone(String telefone)  { this.telefone = telefone; }
-    public void setTipoCliente(String tipo)   { this.tipoCliente = tipo; }
-
-    @Override
-    public String toString() {
-        return "[" + idcliente + "] " + tipoCliente + " | " + email + " | " + telefone;
-    }
+    public int getId() { return id; } public String getTipoCliente() { return tipoCliente; }
+    public String getEmail() { return email; } public String getTelefone() { return telefone; }
+    public LocalDate getDataRegisto() { return dataRegisto; }
+    public void setId(int id) { this.id=id; } public void setTipoCliente(String t) { this.tipoCliente=t; }
+    public void setEmail(String e) { this.email=e; } public void setTelefone(String t) { this.telefone=t; }
+    public void setDataRegisto(LocalDate d) { this.dataRegisto=d; }
 }
